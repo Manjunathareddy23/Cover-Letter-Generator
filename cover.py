@@ -16,7 +16,7 @@ model = genai.GenerativeModel("models/gemini-1.5-flash")
 # Page config
 st.set_page_config(page_title="AI Cover Letter Generator", page_icon="📄", layout="wide")
 
-# Tailwind-style inspired gradient background
+# Tailwind-style gradient background only
 html("""
 <style>
 [data-testid="stAppViewContainer"]::before {
@@ -30,7 +30,7 @@ html("""
     background: linear-gradient(to top right, #ec4899, #8b5cf6, #06b6d4);
     background-size: 200% 200%;
     animation: bgShift 15s ease infinite;
-    opacity: 0.15;
+    opacity: 0.12;
 }
 
 @keyframes bgShift {
@@ -43,7 +43,7 @@ html("""
 
 # Title & intro
 st.title("📄 AI Cover Letter Generator")
-st.markdown("Generate professional, personalized cover letters using **Gemini 1.5 Flash**.\n\nCrafted by **Manjunathareddy** ✨")
+st.markdown("Generate professional, personalized cover letters using **AI**.\n\nCrafted by **Manjunathareddy** ✨")
 
 # Inputs
 st.subheader("📝 Provide Your Details")
