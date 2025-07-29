@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 from streamlit.components.v1 import html
 from streamlit_lottie import st_lottie
-import json
 import requests
 
 # Load environment variables
@@ -16,20 +15,23 @@ API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel("models/gemini-1.5-flash")
 
-# Function to load Lottie animation
+# Load Lottie animation safely
 def load_lottie_url(url: str):
-    r = requests.get(url)
-    if r.status_code != 200:
+    try:
+        r = requests.get(url)
+        if r.status_code == 200:
+            return r.json()
         return None
-    return r.json()
+    except:
+        return None
 
-# Load Lottie animation (professional workspace background)
+# Load animation
 lottie_bg = load_lottie_url("https://assets10.lottiefiles.com/packages/lf20_dyjl7fxv.json")
 
 # Set page config
 st.set_page_config(page_title="AI Cover Letter Generator", page_icon="📄", layout="wide")
 
-# Custom CSS styling
+# Custom CSS
 html("""
 <style>
 body {
@@ -81,21 +83,24 @@ textarea, .stTextInput, .stFileUploader, .stButton button {
 </style>
 """, height=0)
 
-# Lottie header animation
+# App Header
 with st.container():
     col1, col2 = st.columns([1, 2])
     with col1:
-        st_lottie(lottie_bg, height=300, speed=1)
+        if lottie_bg:
+            st_lottie(lottie_bg, height=300, speed=1)
+        else:
+            st.markdown("🎬 *(Animation failed to load)*")
     with col2:
         st.title("📄 AI Cover Letter Generator")
         st.markdown("Craft personalized, formal cover letters from your resume & job descriptions using **Gemini 1.5 Flash**.")
 
-# Input fields
+# Input Section
 st.subheader("📝 Provide Inputs")
 job_description = st.text_area("Enter the Job Description", height=250)
 resume_file = st.file_uploader("Upload your Resume (PDF only)", type=["pdf"])
 
-# Extract text from PDF
+# PDF Text Extraction
 def extract_text_from_pdf(uploaded_file):
     pdf_reader = PyPDF2.PdfReader(uploaded_file)
     text = ""
@@ -103,7 +108,7 @@ def extract_text_from_pdf(uploaded_file):
         text += page.extract_text() or ""
     return text.strip()
 
-# Generate button
+# Generate Cover Letter
 if st.button("🚀 Generate Cover Letter"):
     if not job_description or not resume_file:
         st.warning("⚠️ Please provide both the job description and resume.")
@@ -140,7 +145,7 @@ Your task is to generate a concise, highly personalized, and formal cover letter
 - Use paragraph structure (typically 3–4 concise paragraphs).
 - Do **not** repeat the resume verbatim.
 - Focus on value, alignment, and intent.
-- End with a call to action (e.g., \"looking forward to the opportunity\").
+- End with a call to action (e.g., "looking forward to the opportunity").
 
 ---
 
@@ -153,7 +158,6 @@ Generate the final cover letter below.
                 st.success("✅ Cover Letter Generated!")
                 st.subheader("📄 Your AI-Powered Cover Letter")
                 st.write(output)
-
                 st.download_button("⬇️ Download as TXT", data=output, file_name="cover_letter.txt")
 
             except Exception as e:
