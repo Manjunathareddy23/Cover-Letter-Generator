@@ -25,82 +25,85 @@ def load_lottie_url(url: str):
     except:
         return None
 
-# Load animation
-lottie_bg = load_lottie_url("https://assets10.lottiefiles.com/packages/lf20_dyjl7fxv.json")
+# Lottie animation
+lottie_bg = load_lottie_url("https://assets4.lottiefiles.com/packages/lf20_9cyyl8i1.json")
 
-# Set page config
-st.set_page_config(page_title="AI Cover Letter Generator", page_icon="📄", layout="wide")
+# Page configuration
+st.set_page_config(page_title="AI Cover Letter Generator by Manjureddy", page_icon="📄", layout="wide")
 
-# Custom CSS
-html("""
+# Custom CSS with animated colorful background
+html(f"""
 <style>
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #f0f2f6;
-}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
 
-[data-testid="stAppViewContainer"] {
-    background: linear-gradient(to right, #e0eafc, #cfdef3);
-    animation: fadeIn 1s ease-in-out;
-}
+body {{
+    font-family: 'Poppins', sans-serif;
+    overflow-x: hidden;
+}}
 
-.main .block-container {
-    background-color: white;
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    animation: slideUp 0.7s ease-out;
-}
+[data-testid="stAppViewContainer"] {{
+    background: linear-gradient(135deg, #f9f9f9, #e0f7fa);
+    animation: gradientShift 10s infinite ease-in-out alternate;
+}}
 
-textarea, .stTextInput, .stFileUploader, .stButton button {
+@keyframes gradientShift {{
+    0% {{ background: linear-gradient(135deg, #fceabb, #f8b500); }}
+    50% {{ background: linear-gradient(135deg, #e0f7fa, #b2ebf2); }}
+    100% {{ background: linear-gradient(135deg, #fceabb, #f8b500); }}
+}}
+
+.main .block-container {{
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 3rem;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    animation: fadeInUp 1.2s ease;
+}}
+
+textarea, .stTextInput, .stFileUploader, .stButton button {{
     border-radius: 12px;
-}
+}}
 
-.stButton button {
-    background: linear-gradient(to right, #4facfe, #00f2fe);
+.stButton button {{
+    background: linear-gradient(to right, #00c6ff, #0072ff);
     color: white;
     font-weight: 600;
     border: none;
-}
+}}
 
-.stDownloadButton button {
+.stDownloadButton button {{
     border-radius: 12px;
-    background: linear-gradient(to right, #43cea2, #185a9d);
+    background: linear-gradient(to right, #43e97b, #38f9d7);
     color: white;
     font-weight: bold;
     border: none;
-}
+}}
 
-@keyframes fadeIn {
-    from { opacity: 0 }
-    to { opacity: 1 }
-}
-
-@keyframes slideUp {
-    from { transform: translateY(30px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
+@keyframes fadeInUp {{
+    from {{ opacity: 0; transform: translateY(20px); }}
+    to {{ opacity: 1; transform: translateY(0); }}
+}}
 </style>
 """, height=0)
 
-# App Header
+# Header layout
 with st.container():
     col1, col2 = st.columns([1, 2])
     with col1:
         if lottie_bg:
-            st_lottie(lottie_bg, height=300, speed=1)
+            st_lottie(lottie_bg, height=280, speed=1)
         else:
-            st.markdown("🎬 *(Animation failed to load)*")
+            st.info("🎬 Animation not loaded.")
     with col2:
         st.title("📄 AI Cover Letter Generator")
-        st.markdown("Craft personalized, formal cover letters from your resume & job descriptions using **Gemini 1.5 Flash**.")
+        st.markdown("Create stunning, personalized cover letters in seconds using **Gemini 1.5 Flash**.\n\nCrafted for **Manjunathareddy** ✨")
 
-# Input Section
-st.subheader("📝 Provide Inputs")
+# Inputs
+st.subheader("📝 Provide Your Details")
 job_description = st.text_area("Enter the Job Description", height=250)
-resume_file = st.file_uploader("Upload your Resume (PDF only)", type=["pdf"])
+resume_file = st.file_uploader("Upload Your Resume (PDF only)", type=["pdf"])
 
-# PDF Text Extraction
+# Extract resume text
 def extract_text_from_pdf(uploaded_file):
     pdf_reader = PyPDF2.PdfReader(uploaded_file)
     text = ""
@@ -108,48 +111,47 @@ def extract_text_from_pdf(uploaded_file):
         text += page.extract_text() or ""
     return text.strip()
 
-# Generate Cover Letter
+# Generate cover letter
 if st.button("🚀 Generate Cover Letter"):
     if not job_description or not resume_file:
         st.warning("⚠️ Please provide both the job description and resume.")
     else:
-        with st.spinner("🔍 Analyzing resume and generating cover letter..."):
+        with st.spinner("✍️ Generating your cover letter..."):
             try:
                 resume_text = extract_text_from_pdf(resume_file)
 
                 prompt = f"""
-You are a professional career coach and expert cover letter writer.
+You are a professional career advisor and expert cover letter writer.
 
-Your task is to generate a concise, highly personalized, and formal cover letter based on the information below.
+Generate a professional cover letter using the candidate's resume and job description.
+
+---
+
+🧾 Candidate Name: Manjunathareddy  
+📧 Email: manjukummathi@gmail.com  
+📱 Phone: 630013836
 
 ---
 
 🔹 Job Description:
 {job_description}
 
-🔹 Resume Text:
+🔹 Resume:
 {resume_text}
 
 ---
 
-🎯 Objectives:
-- Tailor the cover letter to the job description.
-- Highlight the candidate's most relevant skills, achievements, and experience.
-- Demonstrate how the applicant fits the job role and company culture.
-- Include a compelling introduction and a strong closing paragraph.
-- Maintain a professional, polite, and enthusiastic tone.
-- Keep the length between 250–300 words.
-
-📌 Format:
-- Start with a proper greeting (e.g., Dear Hiring Manager).
-- Use paragraph structure (typically 3–4 concise paragraphs).
-- Do **not** repeat the resume verbatim.
-- Focus on value, alignment, and intent.
-- End with a call to action (e.g., "looking forward to the opportunity").
+✍️ Format:
+- 3 to 4 short paragraphs
+- Personalized and formal tone
+- Greet with "Dear Hiring Manager"
+- Use real insights from resume (not copied directly)
+- Emphasize relevance to the role
+- End with call-to-action and signature
 
 ---
 
-Generate the final cover letter below.
+Output only the final cover letter. Ready to send.
 """
 
                 response = model.generate_content(prompt)
@@ -158,7 +160,13 @@ Generate the final cover letter below.
                 st.success("✅ Cover Letter Generated!")
                 st.subheader("📄 Your AI-Powered Cover Letter")
                 st.write(output)
-                st.download_button("⬇️ Download as TXT", data=output, file_name="cover_letter.txt")
+
+                st.download_button(
+                    label="⬇️ Download Cover Letter as TXT",
+                    data=output,
+                    file_name="CoverLetter.txt",
+                    mime="text/plain"
+                )
 
             except Exception as e:
-                st.error(f"❌ Error: {e}")
+                st.error(f"❌ Something went wrong: {e}")
