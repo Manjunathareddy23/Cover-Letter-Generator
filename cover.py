@@ -16,43 +16,58 @@ model = genai.GenerativeModel("models/gemini-1.5-flash")
 # Streamlit page config
 st.set_page_config(page_title="AI Cover Letter Generator", page_icon="📄", layout="wide")
 
-# Inject CSS animated background and theme
+# Inject advanced CSS gradient background that works with Streamlit layout
 html("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap');
 
-body {
-    font-family: 'Poppins', sans-serif;
+html, body, [data-testid="stAppViewContainer"] {
+    height: 100%;
+    width: 100%;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
+    font-family: 'Poppins', sans-serif;
+    position: relative;
+    z-index: 1;
 }
 
-[data-testid="stAppViewContainer"] {
-    background: linear-gradient(270deg, #00c9ff, #92fe9d, #ff9a9e, #fad0c4, #fbc2eb);
-    background-size: 1000% 1000%;
-    animation: gradientShift 20s ease infinite;
+/* Gradient background using before pseudo-element */
+[data-testid="stAppViewContainer"]::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(-45deg, #00c9ff, #92fe9d, #ff9a9e, #fbc2eb);
+    background-size: 400% 400%;
+    animation: gradientBG 20s ease infinite;
+    opacity: 0.2;
 }
 
-@keyframes gradientShift {
+@keyframes gradientBG {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
 
+/* Style content container */
 .main .block-container {
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.92);
     border-radius: 16px;
     padding: 3rem;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
     animation: fadeInUp 1.2s ease;
 }
 
+/* Animations */
 @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* UI Element Styling */
 textarea, .stTextInput, .stFileUploader, .stButton button {
     border-radius: 12px;
     font-weight: 500;
@@ -82,7 +97,7 @@ textarea, .stTextInput, .stFileUploader, .stButton button {
 
 # App title
 st.title("📄 AI Cover Letter Generator")
-st.markdown("Create stunning, personalized cover letters using **Gemini 1.5 Flash**.\n\nCrafted by **Manjunathareddy** ✨")
+st.markdown("Create stunning, personalized cover letters using **AI**.\n\nCrafted by **Manjunathareddy** ✨")
 
 # Input section
 st.subheader("📝 Provide Your Details")
