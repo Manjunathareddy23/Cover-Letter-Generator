@@ -1,6 +1,6 @@
 streamlit
-google-generativeai
-python-dotenv
 PyPDF2
-streamlit-lottie
+python-dotenv
+google-generativeai
 requests
+streamlit-lottie
