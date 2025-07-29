@@ -13,25 +13,12 @@ API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel("models/gemini-1.5-flash")
 
-# Streamlit page config
+# Page config
 st.set_page_config(page_title="AI Cover Letter Generator", page_icon="📄", layout="wide")
 
-# Inject advanced CSS gradient background that works with Streamlit layout
+# Tailwind-style inspired gradient background
 html("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap');
-
-html, body, [data-testid="stAppViewContainer"] {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    font-family: 'Poppins', sans-serif;
-    position: relative;
-    z-index: 1;
-}
-
-/* Gradient background using before pseudo-element */
 [data-testid="stAppViewContainer"]::before {
     content: "";
     position: fixed;
@@ -40,79 +27,35 @@ html, body, [data-testid="stAppViewContainer"] {
     width: 100%;
     height: 100%;
     z-index: -1;
-    background: linear-gradient(-45deg, #00c9ff, #92fe9d, #ff9a9e, #fbc2eb);
-    background-size: 400% 400%;
-    animation: gradientBG 20s ease infinite;
-    opacity: 0.2;
+    background: linear-gradient(to top right, #ec4899, #8b5cf6, #06b6d4);
+    background-size: 200% 200%;
+    animation: bgShift 15s ease infinite;
+    opacity: 0.15;
 }
 
-@keyframes gradientBG {
+@keyframes bgShift {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
-
-/* Style content container */
-.main .block-container {
-    background-color: rgba(255, 255, 255, 0.92);
-    border-radius: 16px;
-    padding: 3rem;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-    animation: fadeInUp 1.2s ease;
-}
-
-/* Animations */
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* UI Element Styling */
-textarea, .stTextInput, .stFileUploader, .stButton button {
-    border-radius: 12px;
-    font-weight: 500;
-}
-
-.stButton button {
-    background: linear-gradient(to right, #00c6ff, #0072ff);
-    color: white;
-    font-weight: 600;
-    border: none;
-    transition: all 0.3s ease;
-}
-
-.stButton button:hover {
-    background: linear-gradient(to right, #0072ff, #00c6ff);
-}
-
-.stDownloadButton button {
-    border-radius: 12px;
-    background: linear-gradient(to right, #43e97b, #38f9d7);
-    color: white;
-    font-weight: bold;
-    border: none;
-}
 </style>
 """, height=0)
 
-# App title
+# Title & intro
 st.title("📄 AI Cover Letter Generator")
-st.markdown("Create stunning, personalized cover letters using **AI**.\n\nCrafted by **Manjunathareddy** ✨")
+st.markdown("Generate professional, personalized cover letters using **Gemini 1.5 Flash**.\n\nCrafted by **Manjunathareddy** ✨")
 
-# Input section
+# Inputs
 st.subheader("📝 Provide Your Details")
 job_description = st.text_area("**Enter the Job Description**", height=250)
 resume_file = st.file_uploader("**Upload Your Resume (PDF only)**", type=["pdf"])
 
-# Resume text extractor
+# PDF text extractor
 def extract_text_from_pdf(uploaded_file):
     pdf_reader = PyPDF2.PdfReader(uploaded_file)
-    text = ""
-    for page in pdf_reader.pages:
-        text += page.extract_text() or ""
-    return text.strip()
+    return "".join([page.extract_text() or "" for page in pdf_reader.pages]).strip()
 
-# Cover letter generator
+# Generate button
 if st.button("🚀 Generate Cover Letter"):
     if not job_description or not resume_file:
         st.warning("⚠️ Please provide both the job description and resume.")
@@ -170,4 +113,4 @@ Output only the final cover letter. Ready to send.
                 )
 
             except Exception as e:
-                st.error(f"❌ Something went wrong: {e}")
+                st.error(f"❌ Error: {e}")
