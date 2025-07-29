@@ -4,8 +4,6 @@ import os
 from dotenv import load_dotenv
 import google.generativeai as genai
 from streamlit.components.v1 import html
-from streamlit_lottie import st_lottie
-import requests
 
 # Load environment variables
 load_dotenv()
@@ -15,88 +13,128 @@ API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel("models/gemini-1.5-flash")
 
-# Load Lottie animation safely
-def load_lottie_url(url: str):
-    try:
-        r = requests.get(url)
-        if r.status_code == 200:
-            return r.json()
-        return None
-    except:
-        return None
+# Page config
+st.set_page_config(page_title="AI Cover Letter Generator", page_icon="📄", layout="wide")
 
-# Lottie animation
-lottie_bg = load_lottie_url("https://assets4.lottiefiles.com/packages/lf20_9cyyl8i1.json")
-
-# Page configuration
-st.set_page_config(page_title="AI Cover Letter Generator by Manjureddy", page_icon="📄", layout="wide")
-
-# Custom CSS with animated colorful background
-html(f"""
+# Inject CSS + 3D particles background (HTML + JS)
+html("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
 
-body {{
+body {
     font-family: 'Poppins', sans-serif;
     overflow-x: hidden;
-}}
+}
 
-[data-testid="stAppViewContainer"] {{
-    background: linear-gradient(135deg, #f9f9f9, #e0f7fa);
-    animation: gradientShift 10s infinite ease-in-out alternate;
-}}
+canvas#bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
 
-@keyframes gradientShift {{
-    0% {{ background: linear-gradient(135deg, #fceabb, #f8b500); }}
-    50% {{ background: linear-gradient(135deg, #e0f7fa, #b2ebf2); }}
-    100% {{ background: linear-gradient(135deg, #fceabb, #f8b500); }}
-}}
+[data-testid="stAppViewContainer"] {
+    background: transparent;
+}
 
-.main .block-container {{
-    background-color: rgba(255, 255, 255, 0.95);
+.main .block-container {
+    background-color: rgba(255, 255, 255, 0.92);
     border-radius: 20px;
     padding: 3rem;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
     animation: fadeInUp 1.2s ease;
-}}
+}
 
-textarea, .stTextInput, .stFileUploader, .stButton button {{
+textarea, .stTextInput, .stFileUploader, .stButton button {
     border-radius: 12px;
-}}
+}
 
-.stButton button {{
+.stButton button {
     background: linear-gradient(to right, #00c6ff, #0072ff);
     color: white;
     font-weight: 600;
     border: none;
-}}
+}
 
-.stDownloadButton button {{
+.stDownloadButton button {
     border-radius: 12px;
     background: linear-gradient(to right, #43e97b, #38f9d7);
     color: white;
     font-weight: bold;
     border: none;
-}}
+}
 
-@keyframes fadeInUp {{
-    from {{ opacity: 0; transform: translateY(20px); }}
-    to {{ opacity: 1; transform: translateY(0); }}
-}}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 </style>
+
+<canvas id="bg-canvas"></canvas>
+<script>
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particlesArray = [];
+
+class Particle {
+  constructor(){
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 2 + 1;
+    this.speedX = Math.random() * 1 - 0.5;
+    this.speedY = Math.random() * 1 - 0.5;
+  }
+
+  update(){
+    this.x += this.speedX;
+    this.y += this.speedY;
+
+    if(this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+    if(this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+  }
+
+  draw(){
+    ctx.fillStyle = 'rgba(0, 190, 255, 0.7)';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function init(){
+  particlesArray = [];
+  for (let i = 0; i < 150; i++){
+    particlesArray.push(new Particle());
+  }
+}
+
+function animate(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < particlesArray.length; i++){
+    particlesArray[i].update();
+    particlesArray[i].draw();
+  }
+  requestAnimationFrame(animate);
+}
+
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  init();
+})
+
+init();
+animate();
+</script>
 """, height=0)
 
-# Header layout
-with st.container():
-    col1, col2 = st.columns([1, 2])
-    with col1:
-        if lottie_bg:
-            st_lottie(lottie_bg, height=280, speed=1)
-        else:
-            st.info("🎬 Animation not loaded.")
-    with col2:
-        st.title("📄 AI Cover Letter Generator")
-        st.markdown("Create stunning, personalized cover letters in seconds using **Gemini 1.5 Flash**.\n\nCrafted for **Manjunathareddy** ✨")
+# App header
+st.title("📄 AI Cover Letter Generator")
+st.markdown("Create stunning, personalized cover letters using **Gemini 1.5 Flash**.\n\nCrafted for **Manjunathareddy** ✨")
 
 # Inputs
 st.subheader("📝 Provide Your Details")
@@ -164,7 +202,7 @@ Output only the final cover letter. Ready to send.
                 st.download_button(
                     label="⬇️ Download Cover Letter as TXT",
                     data=output,
-                    file_name="CoverLetter.txt",
+                    file_name="Manjunathareddy_CoverLetter.txt",
                     mime="text/plain"
                 )
 
