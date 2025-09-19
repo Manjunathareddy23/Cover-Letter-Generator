@@ -38,6 +38,18 @@ html("""
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
+
+/* Cover letter box styling */
+.cover-letter-box {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    line-height: 1.6;
+    font-size: 1rem;
+    color: #1f2937;
+    white-space: pre-wrap;
+}
 </style>
 """, height=0)
 
@@ -67,7 +79,7 @@ if st.button("🚀 Generate Cover Letter"):
                 prompt = f"""
 You are a professional career advisor and expert cover letter writer.
 
-Generate a professional cover letter using the candidate's resume and job description.
+Generate a **professional, neatly formatted cover letter** using the candidate's resume and job description.
 
 ---
 
@@ -92,19 +104,21 @@ Generate a professional cover letter using the candidate's resume and job descri
 - Use real insights from resume (not copied directly)
 - Emphasize relevance to the role
 - End with call-to-action and signature
+- Output should look **clean, professional, and aligned**
 
----
-
-Output only the final cover letter. Ready to send.
+Only return the final cover letter.
 """
 
                 response = model.generate_content(prompt)
-                output = response.text
+                output = response.text.strip()
 
                 st.success("✅ Cover Letter Generated!")
                 st.subheader("📄 Your AI-Powered Cover Letter")
-                st.write(output)
 
+                # Styled box output
+                st.markdown(f"<div class='cover-letter-box'>{output}</div>", unsafe_allow_html=True)
+
+                # Download option
                 st.download_button(
                     label="⬇️ Download Cover Letter as TXT",
                     data=output,
